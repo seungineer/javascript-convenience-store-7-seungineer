@@ -10,4 +10,10 @@ function readProductsFile(filePath) {
   }
 }
 
-module.exports = { readProductsFile };
+function parseData(fileContent) {
+  const productList = fileContent.split('\n');
+  const noneHeaderList = productList.slice(1, productList.length);
+  return noneHeaderList.map((product) => product.split(','));
+}
+
+module.exports = { readProductsFile, parseData };
