@@ -14,4 +14,13 @@ describe('fileReader 함수', () => {
     const result = readProductsFile(FILE_PATH);
     expect(result).toBe(PRODUCTS_FILE);
   });
+
+  test('파일이 존재하지 않을 때 [ERROR]로 시작하는 에러 발생', () => {
+    fs.readFileSync.mockImplementation(() => {
+      throw new Error();
+    });
+    expect(() => readProductsFile(FILE_PATH)).toThrow(
+      '[ERROR] products.md 파일을 찾을 수 없습니다.]',
+    );
+  });
 });
