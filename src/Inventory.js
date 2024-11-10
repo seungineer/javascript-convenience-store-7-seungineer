@@ -1,10 +1,13 @@
-import { validateAffordToBuy } from './validators/validateRequests.js';
+import { readPromotionsFile } from './utils/fileReader.js';
 
 export default class {
   #products;
 
+  #promotions;
+
   constructor() {
     this.#products = new Map();
+    this.#promotions = readPromotionsFile('public/promotions.md');
   }
 
   initializeFromParsedData(parsedProducts) {
@@ -15,11 +18,28 @@ export default class {
     });
   }
 
-  deductStock(name, quantity) {
+  deductStock(name, requestedQuantity) {
     const product = this.#products.get(name);
-    validateAffordToBuy(product, name, quantity);
 
-    product.normalQuantity -= quantity;
+    if (!product) {
+      throw new Error(`[ERROR] 상품 '${name}'을 찾을 수 없습니다.`);
+    }
+
+    let remainingQuantity = requestedQuantity;
+
+    if (product.isPromotionApplied) {
+      const promotableQuantity = Math.min(remainingQuantity, product.promotionQuantity);
+      product.promotionQuantity -= promotableQuantity;
+      remainingQuantity -= promotableQuantity;
+    }
+
+    if (remainingQuantity > 0) {
+      if (product.normalQuantity < remainingQuantity) {
+        throw new Error(`[ERROR] '${name}'의 재고가 부족합니다.`);
+      }
+      product.normalQuantity -= remainingQuantity;
+    }
+
     this.#products.set(name, product);
   }
 
