@@ -34,12 +34,13 @@ export default class {
     return this.setQuantities(baseProduct, quantity, promotion);
   }
 
-  setQuantities(baseProduct, quantity, promotion) {
-    if (promotion === 'null') {
+  setQuantities(baseProduct, quantity, promotionName) {
+    if (promotionName === 'null') {
       return this.setNormalQuantity(baseProduct, quantity);
     }
-    return this.setPromotionQuantity(baseProduct, quantity, promotion);
+    return this.setPromotionQuantity(baseProduct, quantity, promotionName);
   }
+
 
   setNormalQuantity(baseProduct, quantity) {
     return { ...baseProduct, normalQuantity: parseInt(quantity, 10) };
