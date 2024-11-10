@@ -3,6 +3,14 @@ const { DateTimes } = require('@woowacourse/mission-utils');
 const { default: ERRORMESSAGES } = require('../constants/ERRORMESSAGES');
 const { default: SYSTEM } = require('../constants/SYSTEM');
 
+function readMarkdownFile(filePath, errorMessage) {
+  try {
+    return fs.readFileSync(filePath, SYSTEM.ENCODING).trim();
+  } catch (error) {
+    throw new Error(errorMessage);
+  }
+}
+
 function parseData(fileContent) {
   const dataRows = fileContent.split('\n');
   const contentWithoutHeader = dataRows.slice(1, dataRows.length);
@@ -10,16 +18,7 @@ function parseData(fileContent) {
 }
 
 function readProductsFile(filePath) {
-  try {
-    const ProductsListString = fs.readFileSync(filePath, 'utf-8');
-    return ProductsListString.trim();
-  } catch (error) {
-    throw new Error(ERRORMESSAGES.PRODUCTS_NOT_FOUND);
-  }
-}
-
-function readFileContent(filePath) {
-  return fs.readFileSync(filePath, SYSTEM.ENCODING).trim();
+  return readMarkdownFile(filePath, ERRORMESSAGES.PRODUCTS_NOT_FOUND);
 }
 
 function getTodayDate() {
@@ -33,18 +32,15 @@ function addPromotionIfValid(promotions, data, today) {
   }
 }
 
-function loadPromotions(filePath) {
-  try {
-    const promotions = new Map();
-    const parsedData = parseData(readFileContent(filePath));
-    const today = getTodayDate();
+function readPromotionsFile(filePath) {
+  const promotions = new Map();
+  const fileContent = readMarkdownFile(filePath, ERRORMESSAGES.PROMOTIONS_MD_NOT_FOUND);
+  const parsedData = parseData(fileContent);
+  const today = getTodayDate();
 
-    parsedData.forEach((data) => addPromotionIfValid(promotions, data, today));
+  parsedData.forEach((data) => addPromotionIfValid(promotions, data, today));
 
-    return promotions;
-  } catch (error) {
-    throw new Error(ERRORMESSAGES.PROMOTIONS_NOT_FOUND);
-  }
+  return promotions;
 }
 
-module.exports = { readProductsFile, parseData, loadPromotions };
+module.exports = { readProductsFile, parseData, readPromotionsFile };
