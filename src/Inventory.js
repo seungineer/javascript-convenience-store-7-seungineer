@@ -1,3 +1,5 @@
+import { validateAffordToBuy } from './validators/validateRequests.js';
+
 export default class {
   #products;
 
@@ -11,6 +13,14 @@ export default class {
       const productName = originalProductData[0];
       this.addOrUpdateProduct(productName, product);
     });
+  }
+
+  deductStock(name, quantity) {
+    const product = this.#products.get(name);
+    validateAffordToBuy(product, name, quantity);
+
+    product.normalQuantity -= quantity;
+    this.#products.set(name, product);
   }
 
   createProduct([name, price, quantity, promotion]) {
