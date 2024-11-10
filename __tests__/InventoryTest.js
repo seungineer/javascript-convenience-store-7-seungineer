@@ -3,6 +3,10 @@ import Inventory from '../src/Inventory';
 const PARSED_PRODUCTS = [
   ['콜라', '1000', '10', '탄산2+1'],
   ['콜라', '1000', '5', 'null'],
+  ['사이다', '1500', '4', 'MD추천상품'],
+  ['사이다', '1500', '1', 'null'],
+  ['에너지바', '2000', '5', '반짝할인'],
+  ['에너지바', '2000', '5', 'null'],
 ];
 
 describe('Inventory 클래스 - initializeFromParsedData', () => {
@@ -18,6 +22,7 @@ describe('Inventory 클래스 - initializeFromParsedData', () => {
       normalQuantity: 5,
       promotionQuantity: 10,
       promotion: '탄산2+1',
+      isPromotionApplied: true,
     });
   });
 });
@@ -30,21 +35,36 @@ describe('Inventory 클래스 - deductStock', () => {
     inventory.initializeFromParsedData(PARSED_PRODUCTS);
   });
 
-  test('정상적인 재고 차감', () => {
-    inventory.deductStock('콜라', 3);
-    const product = inventory.getProduct('콜라');
-    expect(product.normalQuantity + product.promotionQuantity).toBe(12);
+  test('isPromotionApplied가 true인 경우, 프로모션 재고가 감소', () => {
+    const product = inventory.getProduct('사이다');
+    expect(product.isPromotionApplied).toBe(true);
+
+    inventory.deductStock('사이다', 3);
+    const updatedProduct = inventory.getProduct('사이다');
+    expect(updatedProduct.promotionQuantity).toBe(1);
+    expect(updatedProduct.normalQuantity).toBe(1);
   });
 
-  test('상품이 존재하지 않을 경우 에러 발생', () => {
-    expect(() => {
-      inventory.deductStock('사이다', 1);
-    }).toThrow('[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.');
+  test('isPromotionApplied가 false인 경우, 일반 재고가 감소', () => {
+    const product = inventory.getProduct('에너지바');
+    expect(product.isPromotionApplied).toBe(false);
+
+    inventory.deductStock('에너지바', 4);
+    const updatedProduct = inventory.getProduct('에너지바');
+    expect(updatedProduct.normalQuantity).toBe(1);
+    expect(updatedProduct.promotionQuantity).toBe(5);
   });
 
-  test('재고 부족 시 에러 발생', () => {
+  test('isPromotionApplied가 true인 경우, 프로모션 재고가 먼저 감소된 후 부족하면 일반 재고가 감소', () => {
+    inventory.deductStock('사이다', 5);
+    const updatedProduct = inventory.getProduct('사이다');
+    expect(updatedProduct.promotionQuantity).toBe(0);
+    expect(updatedProduct.normalQuantity).toBe(0);
+  });
+
+  test('isPromotionApplied가 false인 경우, 프로모션 재고는 있으나 일반 재고가 부족하면 에러 발생', () => {
     expect(() => {
-      inventory.deductStock('콜라', 16);
-    }).toThrow('[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.');
+      inventory.deductStock('에너지바', 6);
+    }).toThrow("[ERROR] '에너지바'의 재고가 부족합니다.");
   });
 });
