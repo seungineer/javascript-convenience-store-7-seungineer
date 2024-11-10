@@ -23,15 +23,20 @@ export default class {
     this.#products.set(name, product);
   }
 
-  createProduct([name, price, quantity, promotion]) {
+  createProduct([name, price, quantity, promotionName]) {
     const baseProduct = {
       price: parseInt(price, 10),
       normalQuantity: 0,
       promotionQuantity: 0,
       promotion: null,
+      isPromotionApplied: false,
     };
+    return this.applyQuantitiesAndFlag(baseProduct, quantity, promotionName);
+  }
 
-    return this.setQuantities(baseProduct, quantity, promotion);
+  applyQuantitiesAndFlag(baseProduct, quantity, promotionName) {
+    const productWithQuantities = this.setQuantities(baseProduct, quantity, promotionName);
+    return this.setPromotionFlag(productWithQuantities, promotionName);
   }
 
   setQuantities(baseProduct, quantity, promotionName) {
@@ -41,6 +46,12 @@ export default class {
     return this.setPromotionQuantity(baseProduct, quantity, promotionName);
   }
 
+  setPromotionFlag(product, promotionName) {
+    if (this.#promotions.has(promotionName)) {
+      return { ...product, isPromotionApplied: true };
+    }
+    return product;
+  }
 
   setNormalQuantity(baseProduct, quantity) {
     return { ...baseProduct, normalQuantity: parseInt(quantity, 10) };
