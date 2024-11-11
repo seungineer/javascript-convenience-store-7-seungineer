@@ -1,7 +1,8 @@
-const fs = require('fs');
-const { DateTimes } = require('@woowacourse/mission-utils');
-const { readProductsFile, parseData, loadPromotions } = require('../src/utils/fileReader');
-const { default: ERRORMESSAGES } = require('../src/constants/ERRORMESSAGES');
+const fs = import('fs');
+
+const { DateTimes } = import('@woowacourse/mission-utils');
+const { readProductsFile, parseData, readPromotionsFile } = import('../src/utils/fileReader');
+const { ERRORMESSAGES } = import('../src/constants/ERRORMESSAGES');
 
 const PRODUCTS_FILE_CONTENT = 'name,price,quantity,promotion\n콜라,1000,10,탄산2+1\n콜라,1000,5,null';
 const FILE_PATH = 'public/products.md';
@@ -40,7 +41,7 @@ describe('parseData 함수', () => {
 jest.mock('fs');
 jest.spyOn(DateTimes, 'now');
 
-describe('loadPromotions 함수', () => {
+describe('readPromotionsFile 함수', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -52,7 +53,7 @@ describe('loadPromotions 함수', () => {
       'name,buy,get,start_date,end_date\n탄산2+1,2,1,2024-01-01,2024-12-31\nMD추천상품,1,1,2024-01-01,2024-12-31\n반짝할인,1,1,2024-11-01,2024-10-30',
     );
 
-    const promotions = loadPromotions('mockPath/promotions.md');
+    const promotions = readPromotionsFile('mockPath/promotions.md');
 
     expect(promotions.size).toBe(2);
     expect(promotions.get('탄산2+1')).toEqual({ buy: 2, get: 1 });
@@ -66,7 +67,7 @@ describe('loadPromotions 함수', () => {
       'name,buy,get,start_date,end_date\n탄산2+1,2,1,2024-01-01,2024-12-31\nMD추천상품,1,1,2024-01-01,2024-12-31\n반짝할인,1,1,2024-11-01,2024-11-30',
     );
 
-    const promotions = loadPromotions('mockPath/promotions.md');
+    const promotions = readPromotionsFile('mockPath/promotions.md');
 
     expect(promotions.size).toBe(0);
   });
@@ -76,6 +77,6 @@ describe('loadPromotions 함수', () => {
       throw new Error('File not found');
     });
 
-    expect(() => loadPromotions('invalidPath/promotions.md')).toThrow(ERRORMESSAGES.PROMOTIONS_NOT_FOUND);
+    expect(() => readPromotionsFile('invalidPath/promotions.md')).toThrow(ERRORMESSAGES.PROMOTIONS_NOT_FOUND);
   });
 });
