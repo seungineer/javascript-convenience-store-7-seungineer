@@ -1,13 +1,13 @@
+import Promotion from './Promotion.js';
 import { readPromotionsFile } from './utils/fileReader.js';
+import { validateProductExistence, validateSufficientStock } from './validators/validateInventory.js';
 
 export default class {
   #products;
 
-  #promotions;
-
   constructor() {
     this.#products = new Map();
-    this.#promotions = readPromotionsFile('public/promotions.md');
+    this.promotion = new Promotion();
   }
 
   initializeFromParsedData(parsedProducts) {
@@ -18,28 +18,11 @@ export default class {
     });
   }
 
-  deductStock(name, requestedQuantity) {
+  deductStock(name, promotionAppliedQuantity, normalPurchaseQuantity) {
     const product = this.#products.get(name);
 
-    if (!product) {
-      throw new Error(`[ERROR] 상품 '${name}'을 찾을 수 없습니다.`);
-    }
-
-    let remainingQuantity = requestedQuantity;
-
-    if (product.isPromotionApplied) {
-      const promotableQuantity = Math.min(remainingQuantity, product.promotionQuantity);
-      product.promotionQuantity -= promotableQuantity;
-      remainingQuantity -= promotableQuantity;
-    }
-
-    if (remainingQuantity > 0) {
-      if (product.normalQuantity < remainingQuantity) {
-        throw new Error(`[ERROR] '${name}'의 재고가 부족합니다.`);
-      }
-      product.normalQuantity -= remainingQuantity;
-    }
-
+    product.promotionQuantity -= promotionAppliedQuantity;
+    product.normalQuantity -= normalPurchaseQuantity;
     this.#products.set(name, product);
   }
 
@@ -67,7 +50,7 @@ export default class {
   }
 
   setPromotionFlag(product, promotionName) {
-    if (this.#promotions.has(promotionName)) {
+    if (this.promotion.isPromotionApplicable(promotionName)) {
       return { ...product, isPromotionApplied: true };
     }
     return product;
