@@ -1,12 +1,10 @@
 import { Console } from '@woowacourse/mission-utils';
-import Inventory from './Inventory.js';
-import Promotion from './Promotion.js';
 import { validateProductExistence, validateSufficientStock } from './validators/validateInventory.js';
 
 export default class PurchaseManager {
-  constructor() {
-    this.inventory = new Inventory();
-    this.promotion = new Promotion();
+  constructor(inventory, promotion) {
+    this.inventory = inventory;
+    this.promotion = promotion;
     this.purchaseHistory = [];
   }
 
@@ -36,11 +34,11 @@ export default class PurchaseManager {
   }
 
   shouldApplyPromotion(product) {
-    return product.isPromotionApplied && this.promotion.getPromotionInfo(product.promotion);
+    return product.isPromotionApplied && this.promotion.getPromotion(product.promotion);
   }
 
   async applyPromotionLogic(product, requestedQuantity) {
-    const promotionInfo = this.promotion.getPromotionInfo(product.promotion);
+    const promotionInfo = this.promotion.getPromotion(product.promotion);
     const { buy, get } = promotionInfo;
 
     if (requestedQuantity <= product.promotionQuantity) {
