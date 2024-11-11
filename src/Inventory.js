@@ -20,9 +20,18 @@ export default class {
 
   deductStock(name, promotionAppliedQuantity, normalPurchaseQuantity) {
     const product = this.#products.get(name);
-
-    product.promotionQuantity -= promotionAppliedQuantity;
-    product.normalQuantity -= normalPurchaseQuantity;
+    const totalQuantity = promotionAppliedQuantity + normalPurchaseQuantity;
+    if (product.isPromotionApplied) {
+      if (product.promotionQuantity >= totalQuantity) {
+        product.promotionQuantity -= totalQuantity;
+      } else {
+        const remainingQuantity = totalQuantity - product.promotionQuantity;
+        product.promotionQuantity = 0;
+        product.normalQuantity -= remainingQuantity;
+      }
+    } else {
+      product.normalQuantity -= totalQuantity;
+    }
     this.#products.set(name, product);
   }
 
