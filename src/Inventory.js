@@ -71,7 +71,7 @@ export default class {
     if (this.promotion.isPromotionApplicable(promotionName)) {
       return { ...product, isPromotionApplied: true };
     }
-    return product;
+    return { ...product, isPromotionApplied: false };
   }
 
   setNormalQuantity(baseProduct, quantity) {
