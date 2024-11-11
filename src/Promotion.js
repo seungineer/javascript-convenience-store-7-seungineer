@@ -1,15 +1,24 @@
-import { readPromotionsFile } from './utils/fileReader';
+import fileReader from './utils/fileReader.cjs';
+
+const { readPromotionsFile } = fileReader;
 
 export default class Promotion {
   constructor() {
-    this.promotions = readPromotionsFile('public/promotions.md');
+    this.promotions = null;
+    this.initializePromise = this.initialize();
   }
 
-  getPromotionInfo(promotionName) {
+  async initialize() {
+    this.promotions = await readPromotionsFile('public/promotions.md');
+  }
+
+  async getPromotion(promotionName) {
+    await this.initializePromise;
     return this.promotions.get(promotionName);
   }
 
-  isPromotionApplicable(promotionName) {
+  async isPromotionApplicable(promotionName) {
+    await this.initializePromise;
     return this.promotions.has(promotionName);
   }
 
