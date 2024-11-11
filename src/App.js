@@ -2,6 +2,7 @@ import OutputView from './OutputView.js';
 import Inventory from './Inventory.js';
 import Promotion from './Promotion.js';
 import fileReader from './utils/fileReader.cjs';
+import InputView from './InputView.js';
 
 const { readProductsFile } = fileReader;
 
@@ -18,6 +19,8 @@ class App {
 
     OutputView.printWelcomeMessage();
     inventory.displayProductList();
+
+    const customerPicksItem = await InputView.readPurchaseInput();
   }
 }
 
