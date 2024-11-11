@@ -1,6 +1,5 @@
+import OutputView from './OutputView.js';
 import Promotion from './Promotion.js';
-import { readPromotionsFile } from './utils/fileReader.js';
-import { validateProductExistence, validateSufficientStock } from './validators/validateInventory.js';
 
 export default class {
   #products;
@@ -16,6 +15,15 @@ export default class {
       const productName = originalProductData[0];
       this.addOrUpdateProduct(productName, product);
     });
+  }
+
+  setPromotionData(promotion) {
+    this.promotion = promotion;
+  }
+
+  displayProductList() {
+    const productList = Array.from(this.#products.values());
+    OutputView.printProductList(productList);
   }
 
   deductStock(name, promotionAppliedQuantity, normalPurchaseQuantity) {
@@ -37,6 +45,7 @@ export default class {
 
   createProduct([name, price, quantity, promotionName]) {
     const baseProduct = {
+      name,
       price: parseInt(price, 10),
       normalQuantity: 0,
       promotionQuantity: 0,
